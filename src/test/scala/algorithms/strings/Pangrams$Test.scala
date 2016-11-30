@@ -8,7 +8,7 @@ import org.scalatest.{Matchers, WordSpec}
   */
 class Pangrams$Test extends WordSpec with Matchers {
 
-  "CamelCase" should {
+  "Pangrams" should {
     "Test Case #0" in {
       assert(
         Pangrams.runMain("We promptly judged antique ivory buckles for the next prize") == "pangram"

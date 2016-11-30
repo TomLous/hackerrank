@@ -16,6 +16,6 @@ trait Solution {
     System.setIn(in)
     Console.withOut(out)(main(args))
 
-    out.toString
+    out.toString.trim
   }
 }
