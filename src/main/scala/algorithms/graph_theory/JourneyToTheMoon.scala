@@ -57,17 +57,27 @@ object JourneyToTheMoon extends Solution {
     val sizes = graphs.map(_.size)
 
 
+    //
+    //        println("\n")
+    //        println(edges.mkString("\n"))
+    //        println("\n")
+    //        println(nodes.mkString("\n"))
+    //        println("\n")
+    ////        println(graphs.mkString("\n"))
+    ////        println("\n")
+    //
+    //    println(sizes)
+    //    println("\n")
 
-    //    println("\n")
-    //    println(edges.mkString("\n"))
-    //    println("\n")
-    //    println(nodes.mkString("\n"))
-    //    println("\n")
-    //    println(graphs.mkString("\n"))
-    //    println("\n")
+    val combinations = sizes.tails.collect {
+      case h :: tail => tail map {
+        List(h, _)
+      }
+    }.flatten.map(_.product).sum
 
+    print(combinations)
 
-    print(sizes.combinations(2).map(_.product).sum)
+    //    print(sizes.combinations(2).map(_.product).sum)
 
   }
 

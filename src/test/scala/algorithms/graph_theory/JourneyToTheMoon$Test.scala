@@ -19,5 +19,16 @@ class JourneyToTheMoon$Test extends WordSpec with Matchers {
         JourneyToTheMoon.runMain("10 7\n0 2\n1 8\n1 4\n2 8\n2 6\n3 5\n6 9") == "23"
       )
     }
+    "Test Case #2" in {
+      assert(
+        JourneyToTheMoon.runMain("1000 2\n1 2\n3 4") == "499499"
+      )
+    }
+
+    "Test Case #3" in {
+      assert(
+        JourneyToTheMoon.runMain("6 1\n0 1") == "14"
+      )
+    }
   }
 }
