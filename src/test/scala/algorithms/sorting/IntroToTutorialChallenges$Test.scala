@@ -13,6 +13,8 @@ class IntroToTutorialChallenges$Test extends WordSpec with Matchers {
       assert(
         IntroToTutorialChallenges.runMain("4\n6\n1 4 5 7 9 12") == "1"
       )
+    }
+    "Test Case #1" in {
       assert(
         IntroToTutorialChallenges.runMain("9\n6\n1 4 5 7 9 12") == "4"
       )
