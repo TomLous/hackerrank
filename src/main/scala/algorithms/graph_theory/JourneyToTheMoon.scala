@@ -45,7 +45,7 @@ object JourneyToTheMoon extends Solution {
     val nLines = sc.nextInt()
     val nodes = 0 until nAstronauts map (n => Node(n))
 
-    val edges = new Array[Vertex](nLines)
+    val edges = new Array[Edge](nLines)
 
     for (e <- 0 until nLines) {
       edges(e) = Edge(nodes(sc.nextInt()), nodes(sc.nextInt()))
@@ -54,19 +54,57 @@ object JourneyToTheMoon extends Solution {
 
     val graphs = Graph(edges.toList, nodes.toList)
 
+    val sizes = graphs.map(_.size)
 
-    println("\n")
-    println(edges.mkString("\n"))
-    println(nodes.mkString("\n"))
-    println("\n")
 
-    print("x")
+
+    //    println("\n")
+    //    println(edges.mkString("\n"))
+    //    println("\n")
+    //    println(nodes.mkString("\n"))
+    //    println("\n")
+    //    println(graphs.mkString("\n"))
+    //    println("\n")
+
+
+    print(sizes.combinations(2).map(_.product).sum)
 
   }
 
-  trait Vertex
 
-  case class Graph(edges: List[Vertex]) {
+  case class Graph(graphContexts: List[GraphContext]) {
+
+    def append(graphContext: GraphContext) = {
+      Graph(graphContext :: graphContexts)
+    }
+
+    def merge(graph: Graph) = {
+      Graph(graph.graphContexts ++ graphContexts)
+    }
+
+    def contains(n: Node) = {
+      graphContexts.foldLeft(false) {
+        case (res, gc) => res || gc.node == n || gc.neighbors.contains(n)
+      }
+    }
+
+    def size() = graphContexts.length
+
+    override def toString = "[[\n" + graphContexts.mkString("\n") + "\n]]"
+  }
+
+  case class GraphContext(node: Node, neighbors: List[Node]) {
+
+    def link(neighbor: Node) = {
+      GraphContext(this.node, neighbor :: neighbors)
+    }
+
+    def linksTo(n: Node): Boolean = {
+      neighbors.contains(n)
+    }
+
+    override def toString = node + " :{ " + neighbors.mkString(",") + " }"
+
 
   }
 
@@ -74,25 +112,42 @@ object JourneyToTheMoon extends Solution {
     override def toString: String = "(" + n + ")"
   }
 
-  case class Edge(n1: Node, n2: Node) extends Vertex {
+  case class Edge(n1: Node, n2: Node) {
     override def toString: String = n1 + " - " + n2
   }
 
-  case class SingletonEdge(n: Node) extends Vertex {
-    override def toString: String = n.toString
-  }
 
   object Graph {
+    def apply(edges: List[Edge], nodes: List[Node]): List[Graph] = {
+      val nodeMap = nodes.map(n => n -> GraphContext(n, Nil)).toMap
 
-    def apply(edges: List[Vertex], nodes: List[Node]): List[Graph] = {
+      val connectedNodeMap = edges.foldLeft(nodeMap) {
+        case (l, e) => {
+          l + (e.n1 -> l(e.n1).link(e.n2)) + (e.n2 -> l(e.n2).link(e.n1))
+        }
+      }
 
+      connectedNodeMap.foldLeft(List.empty[Graph]) {
+        case (graphs, (node, graphContext)) => {
+          val (matched, unmatched) = graphs.partition(_.contains(node))
+          //          println("\n------\n")
+          //          println("matched " + node + "\n")
+          //          println(matched)
+          //          println("\nunmatched\n")
+          //          println(unmatched)
+          val newGraph = matched.foldLeft(Graph(List(graphContext))) {
+            case (g, gi) => g.merge(gi)
+          }
+          //          println("\nnewGraph\n")
+          //          println(newGraph)
+          //          println("\n------\n")
 
-      List(Graph(edges))
-
+          newGraph :: unmatched
+        }
+      }
     }
   }
 
-  object EmptyEdge extends Vertex
 
 }
 
