@@ -8,7 +8,7 @@ import org.scalatest.{Matchers, WordSpec}
   */
 class JourneyToTheMoon$Test extends WordSpec with Matchers {
 
-  "IntroToTutorialChallenges" should {
+  "JourneyToTheMoon" should {
     "Test Case #0" in {
       assert(
         JourneyToTheMoon.runMain("4 2\n0 1\n2 3") == "4"
