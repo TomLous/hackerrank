@@ -2,6 +2,8 @@ package ai.astar_search
 
 import utils.Solution
 
+import scala.util.Try
+
 
 /**
   * Created by Tom Lous on 20/12/16.
@@ -88,16 +90,17 @@ object PacManDFS extends Solution {
 
     val startPos = Pos.read
     val foodPos = Pos.read
-    val matrix = Matrix.create
+    val matrix = Board.create
+
+
+    println(matrix.validMoves(startPos))
 
 
 
 
 
-
-
-    print(startPos + "\n" + foodPos)
-
+    //    print(startPos + "\n" + foodPos)
+    //
     println(matrix)
   }
 
@@ -105,12 +108,28 @@ object PacManDFS extends Solution {
     val symbol = '?'
   }
 
-  case class Matrix(rows: Int, cols: Int, grid: List[List[Sprite]]) {
+  case class Board(rows: Int, cols: Int, grid: List[List[Sprite]]) {
 
     override def toString = {
       println(s"M [$rows x $cols]")
       grid.map(_.mkString("")).mkString("\n")
     }
+
+    def checkTarget(pos: Pos): Boolean = spriteAt(pos).exists(_.spriteType == Food)
+
+    def validMoves(pos: Pos): List[Pos] = {
+      val down = Pos(pos.row + 1, pos.col)
+      val right = Pos(pos.row, pos.col + 1)
+      val left = Pos(pos.row, pos.col - 1)
+      val up = Pos(pos.row - 1, pos.col)
+
+      List(down, right, left, up)
+        .flatMap(spriteAt)
+        .filter(_.spriteType != Wall)
+        .map(_.pos)
+    }
+
+    def spriteAt(pos: Pos): Option[Sprite] = Try(grid(pos.row)(pos.col)).toOption
   }
 
   case class Sprite(spriteType: SpriteType, pos: Pos) {
@@ -121,9 +140,8 @@ object PacManDFS extends Solution {
     override def toString = s"($row, $col)"
   }
 
-
-  object Matrix {
-    def create(implicit sc: java.util.Scanner): Matrix = {
+  object Board {
+    def create(implicit sc: java.util.Scanner): Board = {
       val rows = sc.nextInt()
       val cols = sc.nextInt()
 
@@ -135,7 +153,7 @@ object PacManDFS extends Solution {
         }.toList
       }.toList
 
-      Matrix(rows, cols, grid)
+      Board(rows, cols, grid)
 
     }
   }
@@ -157,10 +175,10 @@ object PacManDFS extends Solution {
     override val symbol = '-'
   }
 
+
   object Food extends SpriteType {
     override val symbol = '.'
   }
-
 
   object PacMan extends SpriteType {
     override val symbol = 'P'
