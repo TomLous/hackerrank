@@ -2,6 +2,7 @@ package ai.astar_search
 
 import utils.Solution
 
+import scala.annotation.tailrec
 import scala.util.Try
 
 
@@ -90,23 +91,73 @@ object PacManDFS extends Solution {
 
     val startPos = Pos.read
     val foodPos = Pos.read
-    val matrix = Board.create
-
-
-    println(matrix.validMoves(startPos))
+    val board = Board.create
 
 
 
+    val dfs = DepthFirstSearch(board)
 
+    //    println(board)
 
-    //    print(startPos + "\n" + foodPos)
-    //
-    println(matrix)
+    println(dfs.explored.size)
+    println(dfs.explored.mkString("\n"))
+    println(dfs.path.size - 1)
+    println(dfs.path.mkString("\n"))
+
   }
 
   trait SpriteType {
     val symbol = '?'
   }
+
+
+  case class DepthFirstSearch(board: Board) {
+
+    lazy val explored = {
+
+      @tailrec
+      def traverse(toVisit: List[Pos], visitedPos: List[Pos]): Option[List[Pos]] = toVisit.headOption match {
+        case None => None
+        case Some(pos) => {
+          if (board.checkTarget(pos)) Some(pos :: visitedPos)
+          else {
+            val nextMoves = board
+              .validMoves(pos)
+              .diff(visitedPos)
+
+            //            traverse(toVisit.tail ++ nextMoves, pos :: visitedPos) // BFS
+            traverse(nextMoves ++ toVisit.tail, pos :: visitedPos) // DFS
+          }
+        }
+      }
+
+      traverse(board.start.pos :: Nil, Nil)
+        .getOrElse(Nil)
+        .reverse
+    }
+
+
+    lazy val path = {
+      def traverse(pos: Pos, path: List[Pos]): List[Pos] = {
+        if (board.checkTarget(pos)) pos :: path
+        else {
+          val nextMoves = board
+            .validMoves(pos)
+            .diff(path).toIterator
+
+
+          nextMoves.map(traverse(_, pos :: path)).dropWhile(_.isEmpty).take(1).flatten.toList
+        }
+      }
+
+
+      traverse(board.start.pos, Nil).reverse
+    }
+
+
+  }
+
+
 
   case class Board(rows: Int, cols: Int, grid: List[List[Sprite]]) {
 
@@ -114,6 +165,14 @@ object PacManDFS extends Solution {
       println(s"M [$rows x $cols]")
       grid.map(_.mkString("")).mkString("\n")
     }
+
+    def start = findSprites(PacMan).head
+
+    def findSprites(spriteType: SpriteType): List[Sprite] = {
+      grid.flatMap(_.filter(_.spriteType == spriteType))
+    }
+
+    def target = findSprites(Food).head
 
     def checkTarget(pos: Pos): Boolean = spriteAt(pos).exists(_.spriteType == Food)
 
@@ -137,7 +196,7 @@ object PacManDFS extends Solution {
   }
 
   case class Pos(row: Int, col: Int) {
-    override def toString = s"($row, $col)"
+    override def toString = s"$row $col"
   }
 
   object Board {
