@@ -14,5 +14,10 @@ class FibonacciModified$Test extends WordSpec with Matchers {
         FibonacciModified.runMain("0 1 5") == "5"
       )
     }
+    "Test Case #1" in {
+      assert(
+        FibonacciModified.runMain("0 1 10") == "84266613096281243382112"
+      )
+    }
   }
 }
